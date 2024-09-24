@@ -1,32 +1,43 @@
 import { Request, Response } from 'express';
+import { createAccount, findAccountByCustomerID, addTransactionToAccount } from '../models/account';
 
-interface Account {
-    id: number;
-    customerID: string;
-    balance: number;
-    transactions: number[];
-}
+export const registerTransaction = (req: Request, res: Response) => {
+    const { customerID, name, surname, initialCredit, transactionAmount } = req.body;
 
-const accounts: Account[] = [];
-let accountIdCounter = 1;
+    let account = findAccountByCustomerID(customerID);
 
-export const createAccount = (req: Request, res: Response) => {
-    const { customerID, initialCredit } = req.body;
-    const newAccount: Account = {
-        id: accountIdCounter++,
-        customerID,
-        balance: initialCredit,
-        transactions: initialCredit ? [initialCredit] : []
-    };
-    accounts.push(newAccount);
-    res.status(201).json(newAccount);
+    if (!account && name && surname && initialCredit) {
+        // New account creation
+        account = createAccount(customerID, name, surname, initialCredit);
+    } else if (account && transactionAmount) {
+        // Existing account transaction
+        addTransactionToAccount(account, transactionAmount);
+    } else {
+        return res.status(400).json({ message: 'Invalid input' });
+    }
+
+    res.json({
+        customerID: account.customerID,
+        name: account.name,
+        surname: account.surname,
+        balance: account.balance,
+        transactions: account.transactions
+    });
 };
 
-export const getUserInfo = (req: Request, res: Response) => {
+export const getTransactionHistory = (req: Request, res: Response) => {
     const { customerID } = req.params;
-    const userAccounts = accounts.filter(account => account.customerID === customerID);
-    if (userAccounts.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
+    const account = findAccountByCustomerID(customerID);
+
+    if (!account) {
+        return res.status(404).json({ message: 'Account not found' });
     }
-    res.json(userAccounts);
+
+    res.json({
+        customerID: account.customerID,
+        name: account.name,
+        surname: account.surname,
+        balance: account.balance,
+        transactions: account.transactions
+    });
 };

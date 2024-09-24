@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { createAccount, getUserInfo } from '../controllers/accountController';
+import { registerTransaction, getTransactionHistory } from '../controllers/accountController';
 
 const router = Router();
 
-router.post('/accounts', createAccount);
-router.get('/users/:customerID', getUserInfo);
+router.post('/register-transaction', registerTransaction);
+router.get('/transaction-history/:customerID', getTransactionHistory);
 
 export default router;
