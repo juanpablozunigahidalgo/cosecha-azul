@@ -9,10 +9,25 @@ const RegisterTransaction: React.FC = () => {
    const [initialCredit, setInitialCredit] = useState(0);
    const [transactionAmount, setTransactionAmount] = useState(0);
    const [response, setResponse] = useState<any>(null);
+   const [errorMessage, setErrorMessage] = useState('');
 
    const handleSubmit = async () => {
+      setErrorMessage(''); // Reset error message on new submission
+
+      // Frontend validation
+      if (!name || !surname || (customerID === '' && initialCredit === 0)) {
+         setErrorMessage('Please try again and fill the information: Name, Surname are required, and either Customer ID or Initial Credit must be provided.');
+         return;
+      }
+
       const data = await createAccount(customerID, name, surname, initialCredit, transactionAmount);
-      setResponse(data);
+      
+      if (data.message) {
+         // Handle backend validation error messages
+         setErrorMessage(data.message);
+      } else {
+         setResponse(data);
+      }
    };
 
    return (
@@ -76,6 +91,7 @@ const RegisterTransaction: React.FC = () => {
 
          <button onClick={handleSubmit}>Submit</button>
 
+         {errorMessage && <div className="error-message">{errorMessage}</div>}
          {response && <TransactionResult data={response} />}
       </div>
    );

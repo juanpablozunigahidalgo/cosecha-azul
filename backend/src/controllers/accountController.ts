@@ -4,16 +4,21 @@ import { createAccount, findAccountByCustomerID, addTransactionToAccount } from 
 export const registerTransaction = (req: Request, res: Response) => {
     const { customerID, name, surname, initialCredit, transactionAmount } = req.body;
 
+    // Check for required fields
+    if (!name || !surname || (customerID === '' && initialCredit === 0)) {
+        return res.status(400).json({ message: 'Please try again and fill the information: Name, Surname are required, and either Customer ID or Initial Credit must be provided.' });
+    }
+
     let account = findAccountByCustomerID(customerID);
 
-    if (!account && name && surname && initialCredit) {
+    if (!account && name && surname && initialCredit > 0) {
         // New account creation
         account = createAccount(customerID, name, surname, initialCredit);
-    } else if (account && transactionAmount) {
+    } else if (account && transactionAmount > 0) {
         // Existing account transaction
         addTransactionToAccount(account, transactionAmount);
     } else {
-        return res.status(400).json({ message: 'Invalid input' });
+        return res.status(400).json({ message: 'Invalid input or transaction amount must be greater than 0.' });
     }
 
     res.json({
