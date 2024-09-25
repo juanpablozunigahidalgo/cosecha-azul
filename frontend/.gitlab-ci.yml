@@ -1,0 +1,27 @@
+image: node:16
+
+stages:
+  - build
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+
+build_frontend:
+  stage: build
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/build
+
+pages:
+  stage: deploy
+  script:
+    - mv frontend/build public
+  artifacts:
+    paths:
+      - public
