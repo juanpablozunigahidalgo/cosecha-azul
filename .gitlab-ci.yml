@@ -6,23 +6,24 @@ stages:
 
 cache:
   paths:
-    - node_modules/
+    - frontend/node_modules/
 
 build:
   stage: build
   script:
-    - npm install
-    - npm run build
+    - cd frontend  # Move into the frontend directory
+    - npm install  # Install dependencies
+    - npm run build  # Build the frontend
   artifacts:
     paths:
-      - build/
+      - frontend/build/  # Store the build folder for deployment
 
 pages:
   stage: deploy
   script:
-    - mv build public
+    - mv frontend/build public  # Move the frontend build output to public directory
   artifacts:
     paths:
-      - public
+      - public  # GitLab Pages serves from the public folder
   only:
-    - main # Change to your default branch if needed
+    - main  # Use your default branch here
